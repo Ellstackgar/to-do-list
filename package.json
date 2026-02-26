@@ -4,7 +4,7 @@
   "description": "",
   "main": "to-do-list.js",
   "scripts": {
-    "dev": "nodemon to-do-list.js"
+    "dev": "nodemon to-do-list.js --ignore toDoList.json"
   },
   "keywords": [],
   "author": "",

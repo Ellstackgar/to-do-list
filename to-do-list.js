@@ -22,8 +22,7 @@ Enter a number:`, (answer) => {
 
         if (answer === "1") {
             
-            tasks.addTask();
-            showMenu();
+            tasks.addTask(rl, showMenu);
         }
 
         else if (answer === "2") {
