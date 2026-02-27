@@ -14,9 +14,10 @@ function showMenu() {
 What would you like to do?
     1. Add task
     2. View list
-    3. Complete task
+    3. Complete/uncomplete task
     4. Delete task
-    5. Exit menu
+    5. Edit task name
+    6. Exit menu
     
 Enter a number:`, (answer) => {
 
@@ -27,16 +28,19 @@ Enter a number:`, (answer) => {
 
         else if (answer === "2") {
 
-            tasks.viewList();
-            showMenu();
+            tasks.viewList(rl,showMenu);
+            
+            rl.question('Press "Enter" to return to the menu\n', () => {
 
+            showMenu();
+        });
 
         }
 
         else if (answer === "3") {
 
-            tasks.completeTask();
-            showMenu();
+            tasks.markTask(rl,showMenu);
+            
 
         }
 
@@ -47,6 +51,12 @@ Enter a number:`, (answer) => {
         }
 
         else if (answer === "5") {
+
+            tasks.editTaskName();
+            showMenu();
+        }
+
+        else if (answer === "6") {
 
             console.log("Exiting Menu\nGoodbye!")
         }

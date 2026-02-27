@@ -3,5 +3,10 @@
     "id": 1,
     "taskTitle": "poopy head",
     "completed": false
+  },
+  {
+    "id": 2,
+    "taskTitle": "Do a lot",
+    "completed": false
   }
 ]

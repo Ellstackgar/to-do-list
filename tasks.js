@@ -1,4 +1,6 @@
 
+const fs = require('fs');
+
 // function to add new task to list
 function addTask(rl,showMenu) {
 
@@ -12,7 +14,7 @@ Is this correct? (y/n)\n`, (confirmation) => {
 
            
 
-            const fs = require('fs');
+           
             fs.readFile('./toDoList.json', 'utf-8', (err, data) => {
 
                 if (err) {
@@ -71,15 +73,61 @@ Is this correct? (y/n)\n`, (confirmation) => {
 
 // function to view entire list
 
-function viewList() {
+function viewList(rl,showMenu) {
+    console.log('');
+    console.log('');
 
+    fs.readFile('./toDoList.json', 'utf-8', (err, data) => {
+
+        if (err) {
+            console.error(err);
+            return;
+        }
+
+        const taskList = JSON.parse(data);
+        
+        taskList.forEach((task, index) => {
+
+            let status; 
+            
+            if  (task.completed === true)  {
+
+                status = "Completed"
+
+            }
+            
+            else {
+
+                status = "Not completed"
+
+            }
+
+            console.log(`${index + 1}. "${task.taskTitle}" ---- ${status}`)
+
+    });
+
+    console.log('');
+    console.log('');
+    console.log('');
+
+
+
+    });
+
+    
 
 }
 
+async function viewListFunc() {
+
+    
+}
 // function to mark a task as completed
 
-function completeTask() {
+function markTask(rl,showMenu) {
 
+    console.log('Which number corresponds to the task you wish to complete/uncomplete?')
+    viewList();
 
 }
 
@@ -90,9 +138,15 @@ function deleteTask() {
     
 }
 
+function editTaskName() {
+
+
+}
+
 module.exports = {
     addTask,
     viewList,
-    completeTask,
-    deleteTask
+    markTask,
+    deleteTask,
+    editTaskName
 }
