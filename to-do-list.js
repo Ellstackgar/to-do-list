@@ -19,7 +19,7 @@ What would you like to do?
     5. Edit task name
     6. Exit menu
     
-Enter a number:`, (answer) => {
+Enter a number:\n`, (answer) => {
 
         if (answer === "1") {
             
@@ -28,11 +28,10 @@ Enter a number:`, (answer) => {
 
         else if (answer === "2") {
 
-            tasks.viewList(rl,showMenu);
+            tasks.viewList();
             
             rl.question('Press "Enter" to return to the menu\n', () => {
-
-            showMenu();
+           showMenu();
         });
 
         }

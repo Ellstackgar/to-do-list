@@ -1,5 +1,5 @@
 
-const fs = require('fs');
+const fs = require('fs/promises');
 
 // function to add new task to list
 function addTask(rl,showMenu) {
@@ -73,61 +73,50 @@ Is this correct? (y/n)\n`, (confirmation) => {
 
 // function to view entire list
 
-function viewList(rl,showMenu) {
-    console.log('');
-    console.log('');
+async function viewList() {
+    console.log('\n\n');
 
-    fs.readFile('./toDoList.json', 'utf-8', (err, data) => {
-
-        if (err) {
-            console.error(err);
-            return;
-        }
-
-        const taskList = JSON.parse(data);
-        
+    try {
+        const data = await fs.readFile('./toDoList.json', 'utf-8');
+        const taskList = JSON.parse(data);      
         taskList.forEach((task, index) => {
-
-            let status; 
-            
+            let status;           
             if  (task.completed === true)  {
-
                 status = "Completed"
-
-            }
-            
+            }         
             else {
-
                 status = "Not completed"
-
             }
-
             console.log(`${index + 1}. "${task.taskTitle}" ---- ${status}`)
 
-    });
+            
 
-    console.log('');
-    console.log('');
-    console.log('');
+        });
 
+         console.log('\n\n\n');
+         return taskList;
 
-
-    });
-
-    
+        }
+        catch (err) {       
+        console.error(err);
+        throw err;
+    }
 
 }
 
-async function viewListFunc() {
-
-    
-}
 // function to mark a task as completed
 
-function markTask(rl,showMenu) {
+async function markTask(rl,showMenu) {
 
-    console.log('Which number corresponds to the task you wish to complete/uncomplete?')
-    viewList();
+    const taskArray = await viewList();
+
+    rl.question('Which number corresponds to the task you wish to complete/uncomplete?\n', response => {
+
+
+
+    });
+
+    
 
 }
 
