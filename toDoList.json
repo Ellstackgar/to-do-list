@@ -8,5 +8,10 @@
     "id": 2,
     "taskTitle": "Do a lot",
     "completed": false
+  },
+  {
+    "id": 3,
+    "taskTitle": "do this many things",
+    "completed": false
   }
 ]
