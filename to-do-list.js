@@ -27,9 +27,8 @@ Enter a number:\n`);
             showMenu();
         } else if (answer === "3") {
            
-            tasks.markTask(showMenu);
-            
-
+            await tasks.markTask();
+            showMenu();
         } else if (answer === "4") {
 
             tasks.deleteTask();

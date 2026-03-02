@@ -7,6 +7,18 @@ const rl = readline.createInterface({
 });
 const fs = require('fs/promises');
 
+// function to load tasks when writing to toDoList.json
+async function loadTasks() {
+    const data = await fs.readFile('./toDoList.json', 'utf-8');
+    return JSON.parse(data);
+
+}
+
+// function to save the new information to toDoList.json
+async function saveTasks(tasks) {
+    await fs.writeFile('./toDoList.json', JSON.stringify(tasks, null, 2));
+}
+
 // function that gets reused when wanting to print activities in to-do-list to user
 // in reader-friendly language
 function statusChecker(completed) {
@@ -46,8 +58,7 @@ async function addTask(showMenu) {
 
     try {
 
-        const data = await fs.readFile('./toDoList.json', 'utf-8');
-        const tasks = JSON.parse(data);
+        const tasks = await loadTasks();
                 
         let newID = 1;
 
@@ -62,7 +73,8 @@ async function addTask(showMenu) {
         completed: false
         });    
                 
-        await fs.writeFile('./toDoList.json', JSON.stringify(tasks, null, 2));
+        await saveTasks(tasks);
+
         console.log('Task added successfully.')
 
         } catch (err) {
@@ -102,57 +114,98 @@ async function viewList() {
 }
 
 // function that gets reused for requesting user's confirmation
-async function confirmingLoop(getTitle, askConfirmation) {
+async function confirmingLoop(getTitle, askConfirmation, numberValidator, arrayLength) {
 
     let confirmed = false;
     let value;
-
+    let validated;
     while (!confirmed) {
-        value = await getTitle();
+        value = await 
+        getTitle();
+
+        if (numberValidator) {
+            validated = numberValidator(value, arrayLength);
+
+            if (validated === "invalid") {
+                continue;
+
+            } else if (validated === "cancel") {
+                return null;
+                
+            }
+            value = validated;
+        }
+
         const confirmation = await ask(askConfirmation(value));
 
         if (confirmation.trim().toLowerCase() === 'y') {
-
             confirmed = true
         }
-
     }
-
-
+    return value;
 }
 
 // function to validate the user input for the confirmingLoop function
 
-async function validator() { 
-    if (Number.isNaN(index)) {
-        console.log('That is not a valid number.')
-                
+function validator(index, max) { 
+
+    const num = Number(index);
+
+    if (Number.isNaN(num)) {
+        console.log('\nThat is not a valid number.\n');
+        return "invalid";
+
+    } else if (num === 0) {
+        console.log('\nGoing back to the Menu.\n')
+        return "cancel";
+    
+    } else if (num < 0 || num > max) {
+        console.log('\nThat number is out of range.\n')
+        return "invalid";
+
+    } else {
+        return num;
+
     }
 }
 // function to mark a task as completed
 
 async function markTask(showMenu) {
 
-    const taskArray = await viewList();
+    try {
+        const taskArray = await viewList();
 
-// not sure what to do with titleMark yet i'll decide
-    const titleMark = await confirmingLoop(
-        async () => {
-            return await ask(`Which number corresponds to the task you wish to complete/uncomplete?
-To exit type "0".`)
-        },
-        (index) => {
+        const titleMarker = await confirmingLoop(
+            async () => {
+                return await ask(`Which number corresponds to the task you wish to complete/uncomplete?
+To exit type "0".\n`)
+            },
+            (index) => {           
+                const selectedTask = taskArray[index-1];
+                const status = statusChecker(selectedTask.completed);
 
-           
-            const selectedTask = taskArray[index-1];
-            const status = statusChecker(selectedTask.completed);
-
-            return (`\nThis is the task the task you have chosen:\n
+                return (`\nThis is the task the task you have chosen:\n
 ${index}. "${selectedTask.taskTitle}" ---- ${status}
-Is this correct? (y/n)`)
-            }
-        )
-    }
+Is this correct? (y/n)`)}, 
+                validator,
+                taskArray.length
+            );
+    
+        if (titleMarker === null) {
+                showMenu();
+                return;
+        }
+    
+        const changingTask = taskArray[titleMarker - 1];
+        changingTask.completed = !changingTask.completed;
+                  
+        await saveTasks(taskArray);   
+
+        } catch (err) {
+                console.error(err);
+    };
+}
+
 
 
 
