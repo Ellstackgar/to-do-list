@@ -33,23 +33,17 @@ function ask(question) {
 // function to add new task to list
 async function addTask(showMenu) {
 
-    console.log('Add task selected.');
-    let confirmed = false;
-    let confirmation;
-    let title;
+    console.log('Add task selected.\n');
 
-
-    while (!confirmed) {
-
-        title = await ask('What is the title of the task you wish to add?\n');
-        confirmation = await ask(`The title of the task is => "${title}".
-Is this correct? (y/n)\n`);
-
-        if (confirmation.trim().toLowerCase() === 'y') {
-            confirmed = true;
+ const title = await confirmingLoop(
+        async () => {
+            return await ask('What is the title of the task you wish to add?\n') 
+        },
+        (value) => {
+            return `The title of the task is => "${value}".\nIs this correct? (y/n)\n`
         }
-    };
-    
+    );
+
     try {
 
         const data = await fs.readFile('./toDoList.json', 'utf-8');
@@ -107,27 +101,61 @@ async function viewList() {
 
 }
 
+// function that gets reused for requesting user's confirmation
+async function confirmingLoop(getTitle, askConfirmation) {
+
+    let confirmed = false;
+    let value;
+
+    while (!confirmed) {
+        value = await getTitle();
+        const confirmation = await ask(askConfirmation(value));
+
+        if (confirmation.trim().toLowerCase() === 'y') {
+
+            confirmed = true
+        }
+
+    }
+
+
+}
+
+// function to validate the user input for the confirmingLoop function
+
+async function validator() { 
+    if (Number.isNaN(index)) {
+        console.log('That is not a valid number.')
+                
+    }
+}
 // function to mark a task as completed
 
 async function markTask(showMenu) {
 
     const taskArray = await viewList();
-// need to make sure index is a number, and finish this code !
-    const index = await ask('Which number corresponds to the task you wish to complete/uncomplete?\n')
-       
-        selectedTask = taskArray[index - 1];
-        
-        const status = statusChecker(selectedTask.completed);
-        
-        rl.question(`\nIs the task below the correct task you have chosen?\n
+
+// not sure what to do with titleMark yet i'll decide
+    const titleMark = await confirmingLoop(
+        async () => {
+            return await ask(`Which number corresponds to the task you wish to complete/uncomplete?
+To exit type "0".`)
+        },
+        (index) => {
+
+           
+            const selectedTask = taskArray[index-1];
+            const status = statusChecker(selectedTask.completed);
+
+            return (`\nThis is the task the task you have chosen:\n
 ${index}. "${selectedTask.taskTitle}" ---- ${status}
-`, confirmingSelection => {
-    console.log('Blah ' + confirmingSelection )
+Is this correct? (y/n)`)
+            }
+        )
+    }
 
-});
 
-};
-    
+
 
 
 // function to delete a task
