@@ -88,14 +88,30 @@ async function addTask(showMenu) {
 // function to view entire list
 
 async function viewList() {
-    console.log('\nThis is the Task List:');
+
 
     try {
-        const data = await fs.readFile('./toDoList.json', 'utf-8');
-        const taskList = JSON.parse(data);      
-        taskList.forEach((task, index) => {
-            const status = statusChecker(task.completed);
 
+        let taskList;
+        const data = await fs.readFile('./toDoList.json', 'utf-8');
+        if (data.trim() === '') {
+            console.log('\nThere is no to-do-list.\nPlease add new tasks in order to see the list.')
+            return null;
+        } else {
+            taskList = JSON.parse(data);
+            if (taskList.length === 0) {
+                console.log('\nThere is no to-do-list.\nPlease add new tasks in order to see the list.')
+                return null;
+            }
+        }
+
+        if (taskList === null) {
+            console.log('\nThere is no to-do-list.\n');
+            return null;
+        }
+        console.log('\nThis is the Task List:');
+        taskList.forEach((task, index) => {
+            const status = statusChecker(task.completed);            
             console.log(`${index + 1}. "${task.taskTitle}" ---- ${status}`)
 
             
@@ -156,7 +172,7 @@ function validator(index, max) {
         return "invalid";
 
     } else if (num === 0) {
-        console.log('\nGoing back to the Menu.\n')
+        console.log('\nGoing back to the Menu.\n');
         return "cancel";
     
     } else if (num < 0 || num > max) {
@@ -168,16 +184,22 @@ function validator(index, max) {
 
     }
 }
-// function to mark a task as completed
 
-async function markTask(showMenu) {
+// function that contains shared logic between markTask and deleteTask
+
+async function modifyTask(firstLine, arrayOperation, successText) {
 
     try {
         const taskArray = await viewList();
 
+        if (taskArray === null) {
+            await ask('Enter to return to the menu.\n')
+            return;
+        }
+
         const titleMarker = await confirmingLoop(
             async () => {
-                return await ask(`Which number corresponds to the task you wish to complete/uncomplete?
+                return await ask(`Which number corresponds to the task you wish to ${firstLine}?
 To exit type "0".\n`)
             },
             (index) => {           
@@ -186,35 +208,52 @@ To exit type "0".\n`)
 
                 return (`\nThis is the task the task you have chosen:\n
 ${index}. "${selectedTask.taskTitle}" ---- ${status}
-Is this correct? (y/n)`)}, 
+Is this correct? (y/n)\n`)}, 
                 validator,
                 taskArray.length
             );
     
-        if (titleMarker === null) {
-                showMenu();
-                return;
+        if (titleMarker === null) {  
+            await ask('Enter to return to the menu.\n');             
+            return;
         }
     
-        const changingTask = taskArray[titleMarker - 1];
-        changingTask.completed = !changingTask.completed;
+        const updatedArray = await arrayOperation(taskArray,titleMarker);
                   
-        await saveTasks(taskArray);   
-
+        await saveTasks(updatedArray);
+        console.log(successText)
+    
         } catch (err) {
                 console.error(err);
     };
 }
 
 
+// function to mark a task as completed
 
-
-
+async function markTask() {
+    
+    await modifyTask(
+        'complete/uncomplete',
+        (taskArray,index) => {
+        taskArray[index -1].completed = !taskArray[index - 1].completed;
+        return taskArray;
+        },
+        '\nTask successfully updated.\n'
+    ) 
+}
 
 // function to delete a task
 
-function deleteTask() {
-
+async function deleteTask() {
+    await modifyTask(
+        'delete',
+        (taskArray,index) => {
+        taskArray.splice(index-1, 1);
+        return taskArray;
+        },
+        '\nTask successfully deleted.\n'
+    )
     
 }
 

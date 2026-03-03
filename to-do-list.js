@@ -20,23 +20,22 @@ Enter a number:\n`);
         }
 
         else if (answer === "2") {
-
             await tasks.viewList();
             
-            await tasks.ask('Press "Enter" to return to the menu\n');
+            await tasks.ask('Enter to return to the menu\n');
             showMenu();
+
         } else if (answer === "3") {
-           
             await tasks.markTask();
             showMenu();
         } else if (answer === "4") {
-
-            tasks.deleteTask();
+            await tasks.deleteTask();
             showMenu();
-        } else if (answer === "5") {
 
+        } else if (answer === "5") {
             tasks.editTaskName();
             showMenu();
+
         } else if (answer === "6") {
 
             console.log("Exiting Menu\nGoodbye!")

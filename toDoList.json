@@ -1,22 +1,7 @@
 [
   {
     "id": 1,
-    "taskTitle": "poopy head",
-    "completed": false
-  },
-  {
-    "id": 2,
-    "taskTitle": "Do a lot",
-    "completed": false
-  },
-  {
-    "id": 3,
-    "taskTitle": "do this many things",
-    "completed": false
-  },
-  {
-    "id": 4,
-    "taskTitle": "do this stuff with me please",
+    "taskTitle": "do lots of stuff",
     "completed": false
   }
 ]
