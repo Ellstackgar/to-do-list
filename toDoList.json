@@ -1,7 +1,12 @@
 [
   {
     "id": 1,
-    "taskTitle": "do lots of stuff",
+    "taskTitle": "do a lot",
+    "completed": false
+  },
+  {
+    "id": 2,
+    "taskTitle": "testing task editing",
     "completed": false
   }
 ]

@@ -16,7 +16,8 @@ Enter a number:\n`);
 
         if (answer === "1") {
             
-            tasks.addTask(showMenu);
+            await tasks.addTask();
+            showMenu();
         }
 
         else if (answer === "2") {
@@ -33,7 +34,7 @@ Enter a number:\n`);
             showMenu();
 
         } else if (answer === "5") {
-            tasks.editTaskName();
+            await tasks.editTaskName();
             showMenu();
 
         } else if (answer === "6") {

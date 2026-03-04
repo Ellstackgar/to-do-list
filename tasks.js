@@ -10,8 +10,10 @@ const fs = require('fs/promises');
 // function to load tasks when writing to toDoList.json
 async function loadTasks() {
     const data = await fs.readFile('./toDoList.json', 'utf-8');
+    if (data.trim() === '') {       
+        return null;
+    }
     return JSON.parse(data);
-
 }
 
 // function to save the new information to toDoList.json
@@ -43,20 +45,29 @@ function ask(question) {
 }
 
 // function to add new task to list
-async function addTask(showMenu) {
+async function addTask() {
 
     console.log('Add task selected.\n');
+    try {
 
- const title = await confirmingLoop(
+    const title = await confirmingLoop(
         async () => {
-            return await ask('What is the title of the task you wish to add?\n') 
+            return await ask('What is the title of the task you wish to add?\nEnter "0" to exit.\n') 
         },
         (value) => {
-            return `The title of the task is => "${value}".\nIs this correct? (y/n)\n`
+            return ('The title of the task is => "${value}".\nIs this correct? (y/n)\n')
+        },
+        (couldBeZero) => {
+            if (couldBeZero.trim() === '0') {
+                return 'cancel';
+            }
+            return couldBeZero;
+            }       
+    );   
+        if (title === null) {
+            await ask('Enter to return to the menu.\n');
+            return;
         }
-    );
-
-    try {
 
         const tasks = await loadTasks();
                 
@@ -80,8 +91,7 @@ async function addTask(showMenu) {
         } catch (err) {
             console.error(err);
         };
-
-        showMenu();
+        return;
 
     };
 
@@ -92,23 +102,18 @@ async function viewList() {
 
     try {
 
-        let taskList;
-        const data = await fs.readFile('./toDoList.json', 'utf-8');
-        if (data.trim() === '') {
-            console.log('\nThere is no to-do-list.\nPlease add new tasks in order to see the list.')
-            return null;
-        } else {
-            taskList = JSON.parse(data);
-            if (taskList.length === 0) {
-                console.log('\nThere is no to-do-list.\nPlease add new tasks in order to see the list.')
-                return null;
-            }
-        }
+        
+        const taskList = await loadTasks();
 
         if (taskList === null) {
-            console.log('\nThere is no to-do-list.\n');
+            console.log('\nThere is no to-do-list.\nPlease add new tasks in order to see the list.')
             return null;
+
+        } else if (taskList.length === 0) {                     
+            console.log('\nThere is no to-do-list.\nPlease add new tasks in order to see the list.')
+            return null;          
         }
+       
         console.log('\nThis is the Task List:');
         taskList.forEach((task, index) => {
             const status = statusChecker(task.completed);            
@@ -136,8 +141,7 @@ async function confirmingLoop(getTitle, askConfirmation, numberValidator, arrayL
     let value;
     let validated;
     while (!confirmed) {
-        value = await 
-        getTitle();
+        value = await getTitle();
 
         if (numberValidator) {
             validated = numberValidator(value, arrayLength);
@@ -193,7 +197,7 @@ async function modifyTask(firstLine, arrayOperation, successText) {
         const taskArray = await viewList();
 
         if (taskArray === null) {
-            await ask('Enter to return to the menu.\n')
+            await ask('Enter to return to the menu.\n');
             return;
         }
 
@@ -231,8 +235,7 @@ Is this correct? (y/n)\n`)},
 
 // function to mark a task as completed
 
-async function markTask() {
-    
+async function markTask() {   
     await modifyTask(
         'complete/uncomplete',
         (taskArray,index) => {
@@ -257,9 +260,24 @@ async function deleteTask() {
     
 }
 
-function editTaskName() {
 
-
+async function editTaskName() {
+    await modifyTask(
+        'edit the task name of',
+       async (taskArray, titleMarker) => {
+        const newName = await confirmingLoop(
+            async () => {
+                return await ask(`What is the new title of the task?\n`)           
+        },
+            (name) => {
+            return (`The new title is => "${name}".\nIs that correct? (y/n)\n`)
+            }
+        )      
+          taskArray[titleMarker - 1].taskTitle = newName;
+           return taskArray;
+        },
+        '\nTask name successfully changed\n'
+        )
 }
 
 module.exports = {
